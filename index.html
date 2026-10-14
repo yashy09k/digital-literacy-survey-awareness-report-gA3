@@ -712,15 +712,16 @@
       </div>
 
     <!-- Card 4 — Geotag Photos (Baseline Survey) -->
-    <div class='gallery-item'>
-      <div class='gallery-carousel' data-images='9.png,10.png,11.png,12.png,13.png,14.png,15.png,16.png,17.png,18.png,19.png,20.png'>
-        <button class='carousel-arrow prev' data-i18n-attr='aria-label' data-i18n='carousel_prev' aria-label='Previous image'>‹</button>
-        <img src='9.png' alt='' class='carousel-img' aria-labelledby='gal-cap-4'>
-        <button class='carousel-arrow next' data-i18n-attr='aria-label' data-i18n='carousel_next' aria-label='Next image'>›</button>
-        <div class='carousel-counter' aria-live='polite'>1 / 12</div>
-      </div>
-      <div class='gallery-cap' id='gal-cap-4' data-i18n='gallery_cap4'>Geotagged Field Photos — Baseline Survey</div>
-    </div>
+   <!-- Card 4 — Geotag Photos (Baseline Survey) -->
+<div class='gallery-item'>
+  <div class='gallery-carousel' data-images='9.png,10.png,11.png,12.png,13.png,14.png,15.png,16.png,17.png,18.png,19.png,20.png'>
+    <button class='carousel-arrow prev' data-i18n-attr='aria-label' data-i18n='carousel_prev' aria-label='Previous image'>‹</button>
+    <img src='9.png' alt='Baseline Survey Field Photo' class='carousel-img' aria-labelledby='gal-cap-4'>
+    <button class='carousel-arrow next' data-i18n-attr='aria-label' data-i18n='carousel_next' aria-label='Next image'>›</button>
+    <div class='carousel-counter' aria-live='polite'>1 / 12</div>
+  </div>
+  <div class='gallery-cap' id='gal-cap-4' data-i18n='gallery_cap4'>Geotagged Field Photos — Baseline Survey</div>
+</div>
 
     <!-- Card 5 — Awareness Geotag Photos -->
     <div class='gallery-item'>
@@ -1939,57 +1940,50 @@
   }
 
   // ----- Gallery carousels -----
-// ----- Gallery carousels (FIXED LOOPING) -----
-  function initGalleryCarousels(){
-    document.querySelectorAll('.gallery-carousel').forEach(carousel => {
-      const rawImages = carousel.getAttribute('data-images');
-      if (!rawImages) return;
+// ----- Gallery carousels (FINAL FIX) -----
+function initGalleryCarousels(){
+  document.querySelectorAll('.gallery-carousel').forEach(carousel => {
+    const rawData = carousel.getAttribute('data-images');
+    if (!rawData) return;
 
-      // Clean list of image files
-      const images = rawImages.split(',').map(s => s.trim()).filter(Boolean);
-      const img = carousel.querySelector('.carousel-img');
-      const counter = carousel.querySelector('.carousel-counter');
-      const prevBtn = carousel.querySelector('.carousel-arrow.prev');
-      const nextBtn = carousel.querySelector('.carousel-arrow.next');
-      let idx = 0;
+    const images = rawData.split(',').map(s => s.trim()).filter(Boolean);
+    const img = carousel.querySelector('.carousel-img');
+    const counter = carousel.querySelector('.carousel-counter');
+    const prevBtn = carousel.querySelector('.carousel-arrow.prev');
+    const nextBtn = carousel.querySelector('.carousel-arrow.next');
+    let idx = 0;
 
-      function updateCarousel(newIdx) {
-        // Prevent out of bounds & wrap around infinitely
-        idx = (newIdx + images.length) % images.length;
-        
-        // Force immediate image source change
-        img.src = images[idx];
-        img.setAttribute('src', images[idx]);
-
-        if (counter) {
-          counter.textContent = (idx + 1) + ' / ' + images.length;
-        }
+    function renderSlide(newIdx) {
+      idx = (newIdx + images.length) % images.length;
+      img.removeAttribute('style'); // Remove any stuck opacity/transition style
+      img.src = images[idx];
+      
+      if (counter) {
+        counter.textContent = (idx + 1) + ' / ' + images.length;
       }
+    }
 
-      if (prevBtn) {
-        prevBtn.onclick = function(e) {
-          e.preventDefault();
-          e.stopPropagation(); // Stop Lightbox triggering on click
-          updateCarousel(idx - 1);
-        };
-      }
+    if (prevBtn) {
+      prevBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevents Lightbox backdrop trigger
+        renderSlide(idx - 1);
+      };
+    }
 
-      if (nextBtn) {
-        nextBtn.onclick = function(e) {
-          e.preventDefault();
-          e.stopPropagation(); // Stop Lightbox triggering on click
-          updateCarousel(idx + 1);
-        };
-      }
+    if (nextBtn) {
+      nextBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevents Lightbox backdrop trigger
+        renderSlide(idx + 1);
+      };
+    }
 
-      // Initialize
-      updateCarousel(0);
-    });
-  }
+    renderSlide(0);
+  });
+}
 
-  initGalleryCarousels();
-  initGalleryCarousels();
-
+initGalleryCarousels();
   // ----- Image lightbox -----
   function initImageLightbox(){
     const lightbox = document.getElementById('img-lightbox');
