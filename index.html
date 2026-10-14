@@ -712,11 +712,11 @@
 
     <!-- Card 4 — Geotag Photos (Baseline Survey) -->
     <div class='gallery-item'>
-      <div class='gallery-carousel' data-images='9.png,10.png,11.png,12.png,13.png,14.png,15.png,16.png,17.png,18.png,19.png,20.png,21.png,22.png,23.png'>
+      <div class='gallery-carousel' data-images='9.png,10.png,11.png,12.png,13.png,14.png,15.png,16.png,17.png,18.png,19.png,20.png'>
         <button class='carousel-arrow prev' data-i18n-attr='aria-label' data-i18n='carousel_prev' aria-label='Previous image'>‹</button>
         <img src='9.png' alt='' class='carousel-img' aria-labelledby='gal-cap-4'>
         <button class='carousel-arrow next' data-i18n-attr='aria-label' data-i18n='carousel_next' aria-label='Next image'>›</button>
-        <div class='carousel-counter' aria-live='polite'>1 / 15</div>
+        <div class='carousel-counter' aria-live='polite'>1 / 12</div>
       </div>
       <div class='gallery-cap' id='gal-cap-4' data-i18n='gallery_cap4'>Geotagged Field Photos — Baseline Survey</div>
     </div>
@@ -1265,7 +1265,7 @@
       footer_course: 'पाठ्यक्रम कोड: CEP/FP [N-SDFASDSDF]',
       footer_team: 'समूह A3',
       footer_updated: 'अंतिम अद्यतन: ',
-      question_labels: ['मूलभूत फोन संचालन','ऐप्स का उपयोग करने में सहज','फ़िशिंग लिंक पहचानना','UPI के बारे बारे में जागरूक','PIN/OTP गुप्त रखना','सामान्य धोखाधड़ी के बारे में जागरूक','अज्ञात कॉल/लिंक की जाँच करना','सरकारी डिजिटल सेवाओं का उपयोग','सोशल मीडिया पर सक्रिय','जानकारी साझा करने से पहले जाँचना','नियमित रूप से UPI का उपयोग','प्रशिक्षण में रुचि'],
+      question_labels: ['मूलभूत फोन संचालन','ऐप्स का उपयोग करने में सहज','फ़िशिंग लिंक पहचानना','UPI के बारे में जागरूक','PIN/OTP गुप्त रखना','सामान्य धोखाधड़ी के बारे में जागरूक','अज्ञात कॉल/लिंक की जाँच करना','सरकारी डिजिटल सेवाओं का उपयोग','सोशल मीडिया पर सक्रिय','जानकारी साझा करने से पहले जाँचना','नियमित रूप से UPI का उपयोग','प्रशिक्षण में रुचि'],
       age_labels: ['३५ से कम','३५–५५','५५ से अधिक']
     }
   };
@@ -1279,20 +1279,24 @@
     document.body.classList.remove('lang-mr','lang-hi');
     if (lang !== 'en') document.body.classList.add('lang-' + lang);
 
+    // Text content elements
     document.querySelectorAll('[data-i18n]:not([data-i18n-attr])').forEach(el => {
       const key = el.dataset.i18n;
       if (translations[lang][key]) el.textContent = translations[lang][key];
     });
 
+    // Attribute translations
     document.querySelectorAll('[data-i18n-attr][data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
       const attr = el.dataset.i18nAttr;
       if (translations[lang][key]) el.setAttribute(attr, translations[lang][key]);
     });
 
+    // Update chart labels and data
     updateChartsForLanguage();
     renderGapList();
 
+    // Update table age cells
     const ageLabels = t('age_labels');
     document.querySelectorAll('#respondent-table tbody tr').forEach((row, i) => {
       if (!respondents[i]) return;
@@ -1300,17 +1304,20 @@
       if (row.cells[1] && idx >= 0) row.cells[1].textContent = ageLabels[idx];
     });
 
+    // Toggle table button text if visible state known
     const tablePanel = document.getElementById('table-panel');
     const tableToggle = document.getElementById('table-toggle');
     if (tablePanel && tableToggle){
       tableToggle.textContent = tablePanel.classList.contains('table-collapsed') ? t('data_show') : t('data_hide');
     }
 
+    // Update lang switcher button states
     document.querySelectorAll('.lang-switch .btn').forEach(btn => {
       const active = btn.dataset.lang === lang;
       btn.setAttribute('aria-pressed', active.toString());
     });
 
+    // Timestamp
     const ts = document.getElementById('timestamp');
     if (ts) ts.textContent = t('footer_updated') + new Date().toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'});
 
@@ -1336,6 +1343,7 @@
   Chart.defaults.font.family = 'IBM Plex Sans, sans-serif';
   Chart.defaults.color = colors().text;
 
+  // Center text plugin for donuts
   Chart.register({
     id: 'centerText',
     afterDraw(chart) {
@@ -1413,6 +1421,7 @@
       }
       if (chart.canvas.id === 'pilotChart'){
         chart.data.datasets[0].label = t('pilot_dataset');
+        // update x labels and tooltip title from pilotData labels (already updated via currentLang)
         chart.data.labels = pilotData.map(d => d.q);
       }
       if (chart.canvas.id === 'compareChart'){
@@ -1425,7 +1434,7 @@
     });
   }
 
-  // ----- Raw pilot data generation -----
+  // ----- Raw pilot data generation (matches published percentages) -----
   const pilotCounts = [
     {q:'Q1', y:7, n:4, b:6},
     {q:'Q2', y:6, n:8, b:3},
@@ -1511,6 +1520,7 @@
   donut('payChart', 80.8, 'chart_pay_title');
   donut('cyberChart', 34.6, 'chart_cyber_title');
 
+  // Family size distribution
   const familyCtx = document.getElementById('familyChart');
   const familyData = {labels:['2','3','4','5','6','7','8'], data:[1,0,6,12,7,0,0]};
   charts.push(new Chart(familyCtx, {
@@ -1534,6 +1544,7 @@
     }
   }));
 
+  // Age demographics pie
   const ageCtx = document.getElementById('ageChart');
   const ageCounts = [5, 8, 4];
   charts.push(new Chart(ageCtx, {
@@ -1553,10 +1564,28 @@
     }
   }));
 
+  // Age awareness bar
   const ageAwareCtx = document.getElementById('ageAwareChart');
+  function computeAgeAwareness(){
+    const ageLabels = t('age_labels');
+    return ageLabels.map(label => {
+      let y = 0, a = 0;
+      respondents.forEach(r => {
+        if (r.age === ageGroupsMap[label]){
+          r.answers.forEach(ans => { if (ans === 'Y') y++; if (ans !== 'B') a++; });
+        }
+      });
+      return a ? (y / a * 100) : 0;
+    });
+  }
   const ageGroupKeyMap = {'Under 35':'Under 35','35–55':'35–55','Above 55':'Above 55'};
   const ageGroupsMap = {'Under 35':'Under 35','35–55':'35–55','Above 55':'Above 55'};
-
+  // remap when language changes: keep internal keys constant
+  function ageInternalForLang(label){
+    const idx = t('age_labels').indexOf(label);
+    return ageGroupsMap[translations.en.age_labels[idx]];
+  }
+  // override compute for dynamic language
   function computeAgeAwarenessDyn(){
     const labelsEn = translations.en.age_labels;
     return labelsEn.map(enLabel => {
@@ -1590,6 +1619,7 @@
     }
   }));
 
+  // Pilot bar chart
   const pilotCtx = document.getElementById('pilotChart');
   const modal = document.getElementById('detail-modal');
   const modalTitle = document.getElementById('modal-title');
@@ -1646,6 +1676,7 @@
   });
   charts.push(pilotChart);
 
+  // Baseline vs Pilot comparison
   const compareCtx = document.getElementById('compareChart');
   const compareChart = new Chart(compareCtx, {
     type: 'bar',
@@ -1672,6 +1703,7 @@
   });
   charts.push(compareChart);
 
+  // Gap list
   const gapContainer = document.getElementById('gapList');
   function renderGapList(){
     updatePilotLabels();
@@ -1691,6 +1723,7 @@
     });
   }
 
+  // Impact calculator
   const slider = document.getElementById('impact-slider');
   const coverageLabel = document.getElementById('coverage-label');
   const currentVal = document.getElementById('current-val');
@@ -1708,6 +1741,7 @@
   slider.addEventListener('input', updateCalc);
   updateCalc();
 
+  // Respondent table
   const tableToggle = document.getElementById('table-toggle');
   const tablePanel = document.getElementById('table-panel');
   const tableSearch = document.getElementById('table-search');
@@ -1743,6 +1777,7 @@
     });
   });
 
+  // ----- Baseline respondent data -----
   const baselineRespondents = [
     {sno:1, name:'(Blank)', family:2, mobile:'-', digital:'-', cyber:'-', readiness:'-'},
     {sno:2, name:'Sushila Katre', family:5, mobile:'3', digital:'-', cyber:'No', readiness:'Yes'},
@@ -1902,66 +1937,50 @@
     });
   }
 
-  // ----- FIXED GALLERY CAROUSEL LOGIC -----
+  // ----- Gallery carousels -----
   function initGalleryCarousels(){
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.querySelectorAll('.gallery-carousel').forEach(carousel => {
-      const rawAttr = carousel.getAttribute('data-images') || '';
-      const images = rawAttr.split(',').map(s => s.trim()).filter(Boolean);
-      if (!images.length) return;
-
+      const images = carousel.dataset.images.split(',').map(s => s.trim());
       const img = carousel.querySelector('.carousel-img');
       const counter = carousel.querySelector('.carousel-counter');
       const prevBtn = carousel.querySelector('.carousel-arrow.prev');
       const nextBtn = carousel.querySelector('.carousel-arrow.next');
-      let currentIndex = 0;
+      let idx = 0;
 
-      function updateSlide(newIndex){
-        currentIndex = (newIndex + images.length) % images.length;
-        const targetSrc = images[currentIndex];
-
-        if (isReduced){
-          img.src = targetSrc;
+      function show(i){
+        idx = (i + images.length) % images.length;
+        if (reducedMotion){
+          img.src = images[idx];
         } else {
-          img.style.opacity = '0.3';
-          const tempImg = new Image();
-          tempImg.onload = () => {
-            img.src = targetSrc;
-            img.style.opacity = '1';
-          };
-          tempImg.onerror = () => {
-            img.src = targetSrc; // Fallback attempt
-            img.style.opacity = '1';
-          };
-          tempImg.src = targetSrc;
+          img.style.opacity = '0';
+          setTimeout(() => { img.src = images[idx]; img.style.opacity = '1'; }, 200);
         }
-
-        if (counter) {
-          counter.textContent = (currentIndex + 1) + ' / ' + images.length;
-        }
+        counter.textContent = (idx + 1) + ' / ' + images.length;
       }
 
-      if (prevBtn) {
-        prevBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          updateSlide(currentIndex - 1);
+      function showPrev(){ show(idx - 1); }
+      function showNext(){ show(idx + 1); }
+
+      prevBtn.addEventListener('click', showPrev);
+      nextBtn.addEventListener('click', showNext);
+
+      [prevBtn, nextBtn].forEach(btn => {
+        btn.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            btn.classList.contains('prev') ? showPrev() : showNext();
+          }
         });
-      }
+      });
 
-      if (nextBtn) {
-        nextBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          updateSlide(currentIndex + 1);
-        });
-      }
-
-      updateSlide(0);
+      show(0);
     });
   }
 
   initGalleryCarousels();
 
-  // ----- IMAGE LIGHTBOX -----
+  // ----- Image lightbox -----
   function initImageLightbox(){
     const lightbox = document.getElementById('img-lightbox');
     if (!lightbox) return;
@@ -2006,6 +2025,7 @@
   }
   initImageLightbox();
 
+  // Initial render after everything set up
   applyLanguage(currentLang);
 
 })();
