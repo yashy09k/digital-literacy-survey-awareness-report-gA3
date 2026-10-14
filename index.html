@@ -1941,47 +1941,65 @@
 
   // ----- Gallery carousels -----
 // ----- Gallery carousels (FINAL FIX) -----
+// ----- Gallery carousels (NO REPEAT / CLEAN INDEXING) -----
 function initGalleryCarousels(){
   document.querySelectorAll('.gallery-carousel').forEach(carousel => {
     const rawData = carousel.getAttribute('data-images');
     if (!rawData) return;
 
+    // Parse unique & clean image paths
     const images = rawData.split(',').map(s => s.trim()).filter(Boolean);
+    if (!images.length) return;
+
     const img = carousel.querySelector('.carousel-img');
     const counter = carousel.querySelector('.carousel-counter');
     const prevBtn = carousel.querySelector('.carousel-arrow.prev');
     const nextBtn = carousel.querySelector('.carousel-arrow.next');
-    let idx = 0;
+    
+    // Explicit current index tracker
+    let currentIndex = 0;
 
-    function renderSlide(newIdx) {
-      idx = (newIdx + images.length) % images.length;
-      img.removeAttribute('style'); // Remove any stuck opacity/transition style
-      img.src = images[idx];
-      
+    function goToSlide(targetIndex) {
+      // Clean index wrap-around
+      if (targetIndex < 0) {
+        currentIndex = images.length - 1;
+      } else if (targetIndex >= images.length) {
+        currentIndex = 0;
+      } else {
+        currentIndex = targetIndex;
+      }
+
+      // Update image source without state conflict
+      img.src = images[currentIndex];
+
+      // Update counter strictly
       if (counter) {
-        counter.textContent = (idx + 1) + ' / ' + images.length;
+        counter.textContent = (currentIndex + 1) + ' / ' + images.length;
       }
     }
 
     if (prevBtn) {
       prevBtn.onclick = function(e) {
         e.preventDefault();
-        e.stopPropagation(); // Prevents Lightbox backdrop trigger
-        renderSlide(idx - 1);
+        e.stopPropagation();
+        goToSlide(currentIndex - 1);
       };
     }
 
     if (nextBtn) {
       nextBtn.onclick = function(e) {
         e.preventDefault();
-        e.stopPropagation(); // Prevents Lightbox backdrop trigger
-        renderSlide(idx + 1);
+        e.stopPropagation();
+        goToSlide(currentIndex + 1);
       };
     }
 
-    renderSlide(0);
+    // Initialize slide 0 on load
+    goToSlide(0);
   });
 }
+
+initGalleryCarousels();
 
 initGalleryCarousels();
   // ----- Image lightbox -----
